@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,9 +8,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Eye, EyeOff, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { login } from '@/services/authService';
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formState, setFormState] = useState({
@@ -18,6 +20,9 @@ export const LoginForm: React.FC = () => {
     password: '',
     rememberMe: false
   });
+
+  // Get the path the user was trying to access before being redirected to login
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,14 +46,35 @@ export const LoginForm: React.FC = () => {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast('Login successful', {
-        description: 'Welcome back, Dr. Jane Smith',
+    try {
+      const response = await login(formState.email, formState.password);
+      
+      if (response.error) {
+        toast('Login failed', {
+          description: response.error,
+          duration: 3000
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      if (response.user) {
+        toast('Login successful', {
+          description: `Welcome back, ${response.user.name}`,
+        });
+        
+        // Navigate to the dashboard or the page the user was trying to access
+        navigate(from);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast('Login failed', {
+        description: 'An unexpected error occurred',
+        duration: 3000
       });
-      navigate('/dashboard');
-    }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
