@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { BookOpen, Clock, Gamepad2, Search, UsersRound } from 'lucide-react';
+import { BookOpen, Clock, Calendar, FileText, Gamepad2, Search, UsersRound } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 // Mock data for dashboard
