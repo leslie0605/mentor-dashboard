@@ -26,6 +26,7 @@ export const Navbar: React.FC = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(3);
   
   const navItems: NavItem[] = [
+    { label: 'Home', icon: <Home className="h-5 w-5" />, path: '/dashboard' },
     { label: 'Documents', icon: <FileText className="h-5 w-5" />, path: '/document-review' },
     { label: 'Game Design', icon: <Gamepad2 className="h-5 w-5" />, path: '/game-design' },
   ];
@@ -46,9 +47,9 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center space-x-2">
           <Link to="/dashboard" className="flex items-center space-x-2">
             <div className="relative w-8 h-8 rounded-md bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-blur-in">
-              <span className="text-white font-bold">PM</span>
+              <span className="text-white font-bold">M</span>
             </div>
-            <span className="font-medium text-lg text-foreground">PhD Mentor</span>
+            <span className="font-medium text-lg text-foreground">Mentor</span>
           </Link>
         </div>
         

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -82,11 +81,11 @@ export const LoginForm: React.FC = () => {
       <div className="text-center mb-6">
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-4">
-            <UserCheck className="h-8 w-8 text-white" />
+            <span className="text-white font-bold text-2xl">M</span>
           </div>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-        <p className="text-muted-foreground mt-1">Sign in to your PhD Mentor account</p>
+        <p className="text-muted-foreground mt-1">Sign in to your Mentor account</p>
       </div>
 
       <div className="space-y-4">
@@ -171,6 +170,13 @@ export const LoginForm: React.FC = () => {
         <a href="#" className="text-primary hover:underline">
           Contact your administrator
         </a>
+      </div>
+      
+      {/* Demo credentials */}
+      <div className="border-t pt-4 text-center">
+        <p className="text-xs text-muted-foreground mb-1">Demo Credentials</p>
+        <p className="text-xs font-medium">Email: jane.smith@university.edu</p>
+        <p className="text-xs font-medium">Password: PMpwd0605</p>
       </div>
     </form>
   );

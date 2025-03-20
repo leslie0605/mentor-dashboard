@@ -38,7 +38,7 @@ export const login = async (email: string, password: string): Promise<AuthRespon
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Hardcoded test credentials
-    if (email === 'jane.smith@university.edu' && password === 'password123') {
+    if (email === 'jane.smith@university.edu' && password === 'PMpwd0605') {
       const user: User = {
         id: '1',
         name: 'Dr. Jane Smith',

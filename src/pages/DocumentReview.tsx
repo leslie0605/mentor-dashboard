@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { DocumentEditor } from '@/components/DocumentEditor';
+import { DocumentList } from '@/components/DocumentList';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 
@@ -121,18 +121,18 @@ const DocumentReview = () => {
         if (foundDoc) {
           setDocument(foundDoc);
         } else {
-          navigate('/dashboard');
+          navigate('/document-review');
         }
       } else {
-        // If no ID provided, show first document
-        setDocument(documents[0]);
+        // If no ID provided, don't set document (show list view)
+        setDocument(null);
       }
       setIsLoading(false);
     }, 500);
   }, [id, navigate]);
   
   const handleSendFeedback = () => {
-    navigate('/dashboard');
+    navigate('/document-review');
   };
   
   if (isLoading) {
@@ -150,44 +150,36 @@ const DocumentReview = () => {
     );
   }
   
-  if (!document) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
-        <main className="flex-1 container py-16 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold mb-4">Document Not Found</h1>
-            <Button onClick={() => navigate('/dashboard')}>Return to Dashboard</Button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-  
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
       <main className="flex-1 container py-16 mt-4">
-        <Button 
-          variant="ghost" 
-          className="mb-6 -ml-2 flex items-center gap-1" 
-          onClick={() => navigate('/dashboard')}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Dashboard
-        </Button>
-        
-        <div className="bg-card rounded-lg border shadow-sm p-6 h-[calc(100vh-180px)]">
-          <DocumentEditor
-            title={document.title}
-            content={document.content}
-            suggestions={document.suggestions}
-            studentName={document.studentName}
-            documentType={document.type}
-            onSendFeedback={handleSendFeedback}
-          />
-        </div>
+        {id && document ? (
+          <>
+            <Button 
+              variant="ghost" 
+              className="mb-6 -ml-2 flex items-center gap-1" 
+              onClick={() => navigate('/document-review')}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back to Documents
+            </Button>
+            
+            <div className="bg-card rounded-lg border shadow-sm p-6 h-[calc(100vh-180px)]">
+              <DocumentEditor
+                title={document.title}
+                content={document.content}
+                suggestions={document.suggestions}
+                studentName={document.studentName}
+                documentType={document.type}
+                onSendFeedback={handleSendFeedback}
+              />
+            </div>
+          </>
+        ) : (
+          <DocumentList />
+        )}
       </main>
     </div>
   );
