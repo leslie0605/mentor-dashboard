@@ -1,14 +1,13 @@
 
 import React, { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
-import { DocumentCard } from '@/components/DocumentCard';
 import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { BookOpen, Clock, Calendar, FileText, Gamepad2, Search, UsersRound } from 'lucide-react';
+import { FileText, Gamepad2, Search, UsersRound } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 // Mock data for dashboard
@@ -147,9 +146,8 @@ const Dashboard = () => {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="mentees">Mentees</TabsTrigger>
           </TabsList>
           
@@ -272,7 +270,7 @@ const Dashboard = () => {
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-medium">Recent Documents</h3>
-                    <Button variant="ghost" size="sm">View All</Button>
+                    <Button variant="ghost" size="sm" onClick={() => window.location.href = '/document-review'}>View All</Button>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -312,7 +310,7 @@ const Dashboard = () => {
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-medium">Game Module Status</h3>
-                    <Button variant="ghost" size="sm">View All</Button>
+                    <Button variant="ghost" size="sm" onClick={() => window.location.href = '/game-design'}>View All</Button>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -331,7 +329,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex justify-between items-center text-xs text-muted-foreground">
                           <span>{module.progress}% average progress</span>
-                          <span className="flex items-center"><Clock className="h-3 w-3 mr-1" />{module.lastUpdate}</span>
+                          <span className="flex items-center">{module.lastUpdate}</span>
                         </div>
                       </div>
                     ))}
@@ -339,102 +337,6 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="documents" className="animate-fade-in space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Document Review</h2>
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Search documents" 
-                    className="pl-8 w-64 mentor-focus-ring"
-                  />
-                </div>
-                <Button>Review Next</Button>
-              </div>
-            </div>
-            
-            <Tabs defaultValue="pending" className="w-full">
-              <TabsList>
-                <TabsTrigger value="pending">
-                  Pending
-                  <Badge className="ml-2 bg-yellow-100 text-yellow-800 border-yellow-200">
-                    {documentData.filter(d => d.status === 'pending').length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="in-review">
-                  In Review
-                  <Badge className="ml-2 bg-blue-100 text-blue-800 border-blue-200">
-                    {documentData.filter(d => d.status === 'in-review').length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="reviewed">
-                  Reviewed
-                  <Badge className="ml-2 bg-green-100 text-green-800 border-green-200">
-                    {documentData.filter(d => d.status === 'reviewed').length}
-                  </Badge>
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="pending" className="mt-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {documentData
-                    .filter(doc => doc.status === 'pending')
-                    .map(doc => (
-                      <DocumentCard
-                        key={doc.id}
-                        id={doc.id}
-                        title={doc.title}
-                        type={doc.type}
-                        status={doc.status as any}
-                        lastUpdated={doc.lastUpdated}
-                        dueDate={doc.dueDate}
-                        student={doc.student}
-                      />
-                    ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="in-review" className="mt-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {documentData
-                    .filter(doc => doc.status === 'in-review')
-                    .map(doc => (
-                      <DocumentCard
-                        key={doc.id}
-                        id={doc.id}
-                        title={doc.title}
-                        type={doc.type}
-                        status={doc.status as any}
-                        lastUpdated={doc.lastUpdated}
-                        dueDate={doc.dueDate}
-                        student={doc.student}
-                      />
-                    ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="reviewed" className="mt-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {documentData
-                    .filter(doc => doc.status === 'reviewed')
-                    .map(doc => (
-                      <DocumentCard
-                        key={doc.id}
-                        id={doc.id}
-                        title={doc.title}
-                        type={doc.type}
-                        status={doc.status as any}
-                        lastUpdated={doc.lastUpdated}
-                        dueDate={doc.dueDate}
-                        student={doc.student}
-                      />
-                    ))}
-                </div>
-              </TabsContent>
-            </Tabs>
           </TabsContent>
           
           <TabsContent value="mentees" className="animate-fade-in space-y-6">

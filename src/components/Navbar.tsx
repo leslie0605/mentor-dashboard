@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { UserAvatar } from './UserAvatar';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileText, Gamepad2, Bell, Settings, LogOut } from 'lucide-react';
+import { Home, FileText, Gamepad2, Bell, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -26,7 +26,6 @@ export const Navbar: React.FC = () => {
   const [unreadNotifications, setUnreadNotifications] = useState(3);
   
   const navItems: NavItem[] = [
-    { label: 'Dashboard', icon: <LayoutDashboard className="h-5 w-5" />, path: '/dashboard' },
     { label: 'Documents', icon: <FileText className="h-5 w-5" />, path: '/document-review' },
     { label: 'Game Design', icon: <Gamepad2 className="h-5 w-5" />, path: '/game-design' },
   ];
