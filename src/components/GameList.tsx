@@ -11,6 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { UserAvatar } from './UserAvatar';
 import { Gamepad2, Clock, Users } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type Game = {
   id: string;
@@ -76,46 +77,48 @@ export const GameList: React.FC<GameListProps> = ({ onGameSelect, games = mockGa
         Your Games
       </h2>
       
-      {games.length > 0 ? (
-        <div className="grid gap-4">
-          {games.map(game => (
-            <Card 
-              key={game.id} 
-              className="cursor-pointer hover:border-primary/50 transition-all"
-              onClick={() => onGameSelect(game.id)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-base">{game.title}</CardTitle>
-                  <Badge variant="outline">{getGameTypeLabel(game.type)}</Badge>
-                </div>
-                <CardDescription className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  Created {game.createdAt}
-                </CardDescription>
-              </CardHeader>
-              <CardFooter className="pt-1 flex items-center justify-between">
-                <div className="flex flex-wrap items-center gap-1">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground mr-1">Assigned to:</span>
-                  {game.mentees.map((mentee, index) => (
-                    <span key={index} className="text-xs">
-                      {mentee}{index < game.mentees.length - 1 ? ', ' : ''}
-                    </span>
-                  ))}
-                </div>
-                <span className="text-xs font-medium">
-                  {game.questions} {game.questions === 1 ? 'question' : 'questions'}
-                </span>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          You haven't created any games yet.
-        </div>
-      )}
+      <ScrollArea className="h-[calc(100vh-220px)]">
+        {games.length > 0 ? (
+          <div className="grid gap-4 pr-4">
+            {games.map(game => (
+              <Card 
+                key={game.id} 
+                className="cursor-pointer hover:border-primary/50 transition-all"
+                onClick={() => onGameSelect(game.id)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-base">{game.title}</CardTitle>
+                    <Badge variant="outline">{getGameTypeLabel(game.type)}</Badge>
+                  </div>
+                  <CardDescription className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Created {game.createdAt}
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter className="pt-1 flex items-center justify-between">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground mr-1">Assigned to:</span>
+                    {game.mentees.map((mentee, index) => (
+                      <span key={index} className="text-xs">
+                        {mentee}{index < game.mentees.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-xs font-medium">
+                    {game.questions} {game.questions === 1 ? 'question' : 'questions'}
+                  </span>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            You haven't created any games yet.
+          </div>
+        )}
+      </ScrollArea>
     </div>
   );
 };
