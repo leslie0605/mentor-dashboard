@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import DocumentReview from "./pages/DocumentReview";
+import GameDesign from "./pages/GameDesign";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,12 @@ const App = () => (
           <Route path="/document-review/:id" element={
             <ProtectedRoute>
               <DocumentReview />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/game-design" element={
+            <ProtectedRoute>
+              <GameDesign />
             </ProtectedRoute>
           } />
           
