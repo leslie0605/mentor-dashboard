@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -148,7 +147,6 @@ const GameDesign = () => {
       console.error('Error generating game:', error);
       toast('Failed to generate game', {
         description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'destructive',
         duration: 3000
       });
     } finally {
