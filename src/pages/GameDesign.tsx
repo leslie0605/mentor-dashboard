@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -12,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -167,28 +167,30 @@ const GameDesign = () => {
         <CardContent className="space-y-8">
           {/* Game Type Selection */}
           <div className="space-y-3">
-            <Label className="text-lg font-medium">Select Game Type</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {gameTypes.map((game) => (
-                <div
-                  key={game.id}
-                  className={`
-                    flex items-center p-4 rounded-lg border-2 transition-all
-                    ${selectedGameType === game.id ? 'border-primary bg-primary/5' : 'border-border'}
-                    ${!game.available ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'}
-                  `}
-                  onClick={() => game.available && setSelectedGameType(game.id as GameType)}
-                >
-                  <div className="mr-4">{game.icon}</div>
-                  <div className="flex-1">
-                    <h3 className="font-medium">{game.name}</h3>
-                    {!game.available && (
-                      <p className="text-sm text-muted-foreground">Coming Soon</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Label htmlFor="game-type" className="text-lg font-medium">Select Game Type</Label>
+            <Select 
+              value={selectedGameType || ""} 
+              onValueChange={(value) => setSelectedGameType(value as GameType || null)}
+            >
+              <SelectTrigger id="game-type" className="w-full">
+                <SelectValue placeholder="Select a game type" />
+              </SelectTrigger>
+              <SelectContent>
+                {gameTypes.map((game) => (
+                  <SelectItem 
+                    key={game.id} 
+                    value={game.id}
+                    disabled={!game.available}
+                  >
+                    <div className="flex items-center gap-2">
+                      {game.icon}
+                      <span>{game.name}</span>
+                      {!game.available && <span className="text-xs text-muted-foreground ml-2">(Coming Soon)</span>}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Content Source */}
