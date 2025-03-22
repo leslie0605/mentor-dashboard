@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,32 +21,53 @@ const App = () => (
         <Routes>
           {/* Route the index path to dashboard if signed in */}
           <Route path="/" element={<Index />} />
-          
+
           {/* Protected routes */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/document-review" element={
-            <ProtectedRoute>
-              <DocumentReview />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/document-review/:id" element={
-            <ProtectedRoute>
-              <DocumentReview />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/game-design" element={
-            <ProtectedRoute>
-              <GameDesign />
-            </ProtectedRoute>
-          } />
-          
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/document-review"
+            element={
+              <ProtectedRoute>
+                <DocumentReview />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/document-review/:id"
+            element={
+              <ProtectedRoute>
+                <DocumentReview />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/document/:id"
+            element={
+              <ProtectedRoute>
+                <DocumentReview />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/game-design"
+            element={
+              <ProtectedRoute>
+                <GameDesign />
+              </ProtectedRoute>
+            }
+          />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
