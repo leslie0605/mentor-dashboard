@@ -22,9 +22,27 @@ export interface MentorEdit {
   };
   mentorName: string;
   mentorId?: string;
+  mentorTags?: string[];
   timestamp: Date | string;
   fromSuggestion?: boolean;
   suggestionId?: string;
+}
+
+export interface FileEdit {
+  id: string;
+  editType: "file";
+  fileDetails: {
+    filename: string;
+    originalname: string;
+    path: string;
+    size: number;
+    mimetype: string;
+  };
+  mentorName: string;
+  mentorId: string;
+  mentorTags?: string[];
+  editSummary?: string;
+  timestamp: Date | string;
 }
 
 export interface Document {
@@ -36,6 +54,11 @@ export interface Document {
   studentId: string;
   suggestions: Suggestion[];
   mentorEdits: MentorEdit[];
+  editHistory?: (MentorEdit | FileEdit)[];
+  fileUrl?: string;
+  originalFilePath?: string;
+  originalFileName?: string;
+  editedFileUrl?: string;
   status: "pending" | "in_progress" | "completed";
   createdAt: string;
   updatedAt: string;

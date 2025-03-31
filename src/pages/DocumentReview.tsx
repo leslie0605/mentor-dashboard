@@ -118,6 +118,9 @@ const DocumentReview = () => {
                 studentName={selectedDocument.studentName}
                 documentType={selectedDocument.type}
                 documentId={actualDocumentId}
+                fileUrl={selectedDocument.fileUrl}
+                originalFileName={selectedDocument.originalFileName}
+                editedFileUrl={selectedDocument.editedFileUrl}
                 onSendFeedback={handleSendFeedback}
               />
             </div>

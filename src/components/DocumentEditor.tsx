@@ -3,7 +3,15 @@ import { UserAvatar } from "./UserAvatar";
 import { SuggestionPopover } from "./SuggestionPopover";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Send, Lock, Download, CheckCircle, XCircle, Edit } from "lucide-react";
+import {
+  Send,
+  Lock,
+  Download,
+  CheckCircle,
+  XCircle,
+  Edit,
+  FileUp,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -11,7 +19,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAuth } from "@/hooks/useAuth"; // Add this hook for authentication
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type Suggestion = {
   id: string;
@@ -36,6 +54,7 @@ type MentorEdit = {
   };
   mentorName: string;
   mentorId?: string;
+  mentorTags?: string[];
   timestamp: Date | string;
   fromSuggestion?: boolean;
   suggestionId?: string;
@@ -48,6 +67,9 @@ type DocumentEditorProps = {
   studentName: string;
   documentType: string;
   documentId: string;
+  fileUrl?: string;
+  originalFileName?: string;
+  editedFileUrl?: string;
   onSendFeedback: () => void;
 };
 
@@ -61,6 +83,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   studentName,
   documentType,
   documentId,
+  fileUrl,
+  originalFileName,
+  editedFileUrl,
   onSendFeedback,
 }) => {
   const [editorContent, setEditorContent] = useState(content);
@@ -74,12 +99,10 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     start: number;
     end: number;
   } | null>(null);
+  const [isFileUploadOpen, setIsFileUploadOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-
-  // Mock authentication - in a real app, this would come from useAuth()
-  const { user } = {
-    user: { id: "mentor123", name: "Dr. Jane Smith", role: "mentor" },
-  };
 
   // Placeholder for tracking stats
   const [stats, setStats] = useState({
@@ -101,6 +124,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   // Function to save mentor edits to the backend
   const saveEditsToBackend = async (edits) => {
     try {
+      // Automatically use mentor name as tag - no input needed
+      const mentorTag = "Dr. Jane Smith";
+
       const response = await fetch(
         `${BACKEND_API}/documents/${documentId}/edits`,
         {
@@ -110,8 +136,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           },
           body: JSON.stringify({
             edits,
-            mentorName: user.name,
-            mentorId: user.id,
+            mentorName: "Dr. Jane Smith",
+            mentorId: "mentor123",
+            mentorTags: [mentorTag], // Auto-set mentor name as tag
           }),
         }
       );
@@ -172,8 +199,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           start: suggestion.position.start,
           end: suggestion.position.start + suggestion.suggestedText.length,
         },
-        mentorName: user.name,
-        mentorId: user.id,
+        mentorName: "Dr. Jane Smith",
+        mentorId: "mentor123",
         timestamp: new Date(),
         fromSuggestion: true,
         suggestionId: suggestion.id,
@@ -195,8 +222,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           body: JSON.stringify({
             suggestionId,
             accepted: true,
-            mentorName: user.name,
-            mentorId: user.id,
+            mentorName: "Dr. Jane Smith",
+            mentorId: "mentor123",
           }),
         });
       } catch (error) {
@@ -204,7 +231,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
         // Continue anyway - the change is still in local state
       }
     },
-    [suggestions, editorContent, documentId, user]
+    [suggestions, editorContent, documentId]
   );
 
   // Update the handleRejectSuggestion function
@@ -233,8 +260,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           body: JSON.stringify({
             suggestionId,
             accepted: false,
-            mentorName: user.name,
-            mentorId: user.id,
+            mentorName: "Dr. Jane Smith",
+            mentorId: "mentor123",
           }),
         });
       } catch (error) {
@@ -242,7 +269,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
         // Continue anyway - the change is still in local state
       }
     },
-    [suggestions, documentId, user]
+    [suggestions, documentId]
   );
 
   // Update the handleManualEdit function
@@ -275,8 +302,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
         start: selectedText.start,
         end: selectedText.start + newText.length,
       },
-      mentorName: user.name,
-      mentorId: user.id,
+      mentorName: "Dr. Jane Smith",
+      mentorId: "mentor123",
       timestamp: new Date(),
     };
 
@@ -305,7 +332,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
       console.error("Error saving manual edit:", error);
       // Continue anyway - the change is still in local state
     }
-  }, [selectedText, editorContent, user, saveEditsToBackend]);
+  }, [selectedText, editorContent, saveEditsToBackend]);
 
   // Update the handleSendFeedback function
   const handleSendFeedback = async () => {
@@ -327,8 +354,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            mentorName: user.name,
-            mentorId: user.id,
+            mentorName: "Dr. Jane Smith",
+            mentorId: "mentor123",
             feedbackComments: feedbackComments || "Feedback complete.",
           }),
         }
@@ -388,6 +415,110 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
     });
   };
 
+  // Add this function to handle downloading the original file
+  const handleDownloadOriginalFile = () => {
+    if (!fileUrl) {
+      toast("No file available", {
+        description: "The original file is not available for download",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Trigger download - fix path to avoid double /api/ prefix
+    const fixedUrl = fileUrl.startsWith("/api/")
+      ? `${BACKEND_API}${fileUrl.substring(4)}`
+      : `${BACKEND_API}${fileUrl}`;
+
+    window.open(fixedUrl, "_blank");
+  };
+
+  // Add this function to handle downloading the edited file
+  const handleDownloadEditedFile = () => {
+    if (!editedFileUrl) {
+      toast("No edited file available", {
+        description: "No edited file has been uploaded yet",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Trigger download - fix path to avoid double /api/ prefix
+    const fixedUrl = editedFileUrl.startsWith("/api/")
+      ? `${BACKEND_API}${editedFileUrl.substring(4)}`
+      : `${BACKEND_API}${editedFileUrl}`;
+
+    window.open(fixedUrl, "_blank");
+  };
+
+  // Add file upload handling
+  const handleFileUpload = () => {
+    setIsFileUploadOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setUploadedFile(e.target.files[0]);
+    }
+  };
+
+  // Restore file upload submit function
+  const submitFileUpload = async () => {
+    if (!uploadedFile) {
+      toast("No file selected", {
+        description: "Please select a file to upload",
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      // Auto-generate summary and tags
+      const mentorTag = "Dr. Jane Smith";
+      const autoSummary = `Edited by Dr. Jane Smith on ${new Date().toLocaleDateString()}`;
+
+      const formData = new FormData();
+      formData.append("editedFile", uploadedFile);
+      formData.append("documentId", documentId);
+      formData.append("mentorName", "Dr. Jane Smith");
+      formData.append("mentorId", "mentor123");
+      formData.append("editSummary", autoSummary);
+      formData.append("mentorTags[]", mentorTag);
+
+      const response = await fetch(`${BACKEND_API}/documents/edited-document`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to upload edited file");
+      }
+
+      const result = await response.json();
+
+      toast("File uploaded successfully", {
+        description: "Your edited file has been uploaded for the student",
+        duration: 3000,
+      });
+
+      // Close the dialog and reset state
+      setIsFileUploadOpen(false);
+      setUploadedFile(null);
+
+      // Handle any UI updates needed after successful upload
+      if (result.data && result.data.editedFileUrl) {
+        // This would be handled by refreshing the document data in a real implementation
+      }
+    } catch (error) {
+      console.error("Error uploading edited file:", error);
+      toast("Failed to upload file", {
+        description: error.message || "An error occurred during file upload",
+        duration: 5000,
+      });
+    }
+  };
+
   // Render content with edited regions highlighted
   const renderContent = () => {
     // First handle active suggestions
@@ -416,7 +547,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
       // Generate HTML with mentor edits highlighted
       const contentWithEdits = editorContent;
-      const htmlParts = [];
+      const htmlParts: React.ReactNode[] = [];
       let lastIndex = 0;
 
       // Sort edits by position to handle them in order
@@ -426,9 +557,11 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
       for (const edit of sortedEdits) {
         // Add text before the edit
-        htmlParts.push(
-          contentWithEdits.substring(lastIndex, edit.position.start)
-        );
+        if (lastIndex < edit.position.start) {
+          htmlParts.push(
+            contentWithEdits.substring(lastIndex, edit.position.start)
+          );
+        }
 
         // Add the edited text with highlight
         htmlParts.push(
@@ -438,7 +571,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           >
             {edit.text}
             <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 bg-black/75 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-              Edited by {edit.mentorName}
+              Edited by Dr. Jane Smith
             </span>
           </span>
         );
@@ -447,7 +580,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
       }
 
       // Add any remaining text
-      htmlParts.push(contentWithEdits.substring(lastIndex));
+      if (lastIndex < contentWithEdits.length) {
+        htmlParts.push(contentWithEdits.substring(lastIndex));
+      }
 
       return (
         <div
@@ -472,12 +607,16 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
       (a, b) => b.position.start - a.position.start
     );
 
-    // Create an array of content chunks
-    const contentChunks = [editorContent];
+    // Create an array of content chunks with proper typing
+    const contentChunks: React.ReactNode[] = [];
+    contentChunks.push(editorContent);
 
     // Replace each suggestion with a highlighted version
     for (const suggestion of sortedSuggestions) {
-      const lastChunk = contentChunks.pop() || "";
+      const lastChunk = contentChunks.pop();
+      // Make sure lastChunk is a string before using substring
+      if (typeof lastChunk !== "string") continue;
+
       const before = lastChunk.substring(0, suggestion.position.start);
       const middle = lastChunk.substring(
         suggestion.position.start,
@@ -555,10 +694,64 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             </Tooltip>
           </TooltipProvider>
 
-          <Button variant="outline" size="sm" disabled={!isEditable}>
-            <Download className="h-4 w-4 mr-1" />
-            Download
-          </Button>
+          {fileUrl && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadOriginalFile}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download Original
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Download the original file submitted by student</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {editedFileUrl && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadEditedFile}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download Edited
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Download the most recent edited file</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFileUpload}
+                  disabled={!isEditable}
+                >
+                  <FileUp className="h-4 w-4 mr-1" />
+                  Upload Edited File
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Upload an edited version of the document</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <Button
             variant={isEditable ? "default" : "outline"}
@@ -614,8 +807,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
 
         <div className="flex items-center">
           <span className="text-sm text-muted-foreground mr-2">Edited by:</span>
-          <UserAvatar name={user.name} size="sm" />
-          <span className="text-sm ml-1">{user.name}</span>
+          <UserAvatar name="Dr. Jane Smith" size="sm" />
+          <span className="text-sm ml-1">Dr. Jane Smith</span>
         </div>
       </div>
 
@@ -655,6 +848,52 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
           )}
         </Button>
       </div>
+
+      {/* File Upload Dialog - simplified */}
+      <Dialog open={isFileUploadOpen} onOpenChange={setIsFileUploadOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload Edited Document</DialogTitle>
+            <DialogDescription>
+              Upload your edited version of the document for the student
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="file">Select File</Label>
+              <Input
+                id="file"
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx,.tex"
+              />
+              {uploadedFile && (
+                <p className="text-sm text-muted-foreground">
+                  Selected: {uploadedFile.name} (
+                  {Math.round(uploadedFile.size / 1024)} KB)
+                </p>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Your edits will be automatically tagged with your name and
+              timestamp.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsFileUploadOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" onClick={submitFileUpload}>
+              Upload
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
